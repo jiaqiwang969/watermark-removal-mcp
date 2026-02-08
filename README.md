@@ -37,25 +37,12 @@ Install Python dependencies:
 pip install -r scripts/requirements.txt
 ```
 
-## Quick start (no Rust compile)
+## Quick start (recommended: NPX, no local scripts)
 
-Clone:
-
-```bash
-git clone git@github.com:jiaqiwang969/watermark-removal-mcp.git
-cd watermark-removal-mcp
-```
-
-Run MCP on macOS/Linux:
+Run directly from GitHub with `npx`:
 
 ```bash
-./run-mcp.sh
-```
-
-Run MCP on Windows:
-
-```powershell
-.\run-mcp.ps1
+npx -y github:jiaqiwang969/watermark-removal-mcp
 ```
 
 `run-mcp.sh` / `run-mcp.ps1` behavior:
@@ -87,16 +74,36 @@ WATERMARK_MCP_ALLOW_BUILD=1 ./run-mcp.sh
 
 ## Codex CLI integration
 
-macOS/Linux:
+Use `npx` (cross-platform, no local `.sh` path):
 
 ```bash
-codex mcp add watermark-remover -- /absolute/path/to/watermark-removal-mcp/run-mcp.sh
+codex mcp add watermark-remover -- npx -y github:jiaqiwang969/watermark-removal-mcp
 ```
 
-Windows:
+### Legacy local launchers (optional)
+
+If you still want local scripts instead of NPX:
+
+- macOS/Linux: `run-mcp.sh`
+- Windows: `run-mcp.ps1`
+
+Clone:
+
+```bash
+git clone git@github.com:jiaqiwang969/watermark-removal-mcp.git
+cd watermark-removal-mcp
+```
+
+Run MCP on macOS/Linux:
+
+```bash
+./run-mcp.sh
+```
+
+Run MCP on Windows:
 
 ```powershell
-codex mcp add watermark-remover -- powershell -NoProfile -ExecutionPolicy Bypass -File C:\path\to\watermark-removal-mcp\run-mcp.ps1
+.\run-mcp.ps1
 ```
 
 Keep up to date:

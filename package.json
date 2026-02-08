@@ -1,0 +1,19 @@
+{
+  "name": "watermark-removal-mcp",
+  "version": "0.3.0",
+  "description": "NPX launcher for watermark-remover MCP server binaries",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "watermark-removal-mcp": "bin/watermark-removal-mcp.js"
+  },
+  "files": [
+    "bin",
+    "README.md",
+    "LICENSE"
+  ],
+  "dependencies": {
+    "adm-zip": "^0.5.16",
+    "tar": "^7.4.3"
+  }
+}
