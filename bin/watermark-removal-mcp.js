@@ -4,7 +4,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import https from "node:https";
-import { spawn } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
 import { pipeline } from "node:stream/promises";
 import { createWriteStream } from "node:fs";
 
@@ -141,9 +141,74 @@ function resolveScriptsDir(installDir) {
   throw new Error("Cannot find scripts directory. Set WATERMARK_SCRIPTS_DIR explicitly.");
 }
 
+function detectPython() {
+  const candidates = [];
+  if (process.env.WATERMARK_PYTHON_BIN) {
+    candidates.push(process.env.WATERMARK_PYTHON_BIN);
+  }
+  if (process.platform === "win32") {
+    candidates.push("python", "python3");
+  } else {
+    candidates.push("python3", "python");
+  }
+
+  for (const cmd of candidates) {
+    const result = spawnSync(cmd, ["--version"], { stdio: "ignore" });
+    if (result.status === 0) {
+      return cmd;
+    }
+  }
+  throw new Error(
+    "Python runtime not found. Install Python 3.10+ or set WATERMARK_PYTHON_BIN to your python executable."
+  );
+}
+
+function ensurePythonDeps(pythonCmd, scriptsDir) {
+  if (process.env.WATERMARK_MCP_SKIP_PYTHON_BOOTSTRAP === "1") {
+    return;
+  }
+
+  const check = spawnSync(
+    pythonCmd,
+    ["-c", "import pdf2image, img2pdf, cv2, numpy, PIL"],
+    { stdio: "ignore" }
+  );
+  if (check.status === 0) {
+    return;
+  }
+
+  if (process.env.WATERMARK_MCP_AUTO_INSTALL_PYTHON === "0") {
+    throw new Error(
+      "Missing Python dependencies. Install with: pip install -r scripts/requirements.txt"
+    );
+  }
+
+  const requirements = path.join(scriptsDir, "requirements.txt");
+  if (!fs.existsSync(requirements)) {
+    throw new Error(`requirements.txt not found: ${requirements}`);
+  }
+
+  const install = spawnSync(
+    pythonCmd,
+    ["-m", "pip", "install", "--user", "-r", requirements],
+    { stdio: ["ignore", "pipe", "pipe"], encoding: "utf8" }
+  );
+  if (install.stdout) {
+    process.stderr.write(install.stdout);
+  }
+  if (install.stderr) {
+    process.stderr.write(install.stderr);
+  }
+  if (install.status !== 0) {
+    throw new Error("Failed to install Python dependencies.");
+  }
+}
+
 async function run() {
   const { installDir, binPath } = await ensurePrebuiltInstalled();
   const scriptsDir = resolveScriptsDir(installDir);
+  const pythonCmd = detectPython();
+  ensurePythonDeps(pythonCmd, scriptsDir);
   const env = { ...process.env, WATERMARK_SCRIPTS_DIR: scriptsDir };
   const child = spawn(binPath, [], { stdio: "inherit", env });
 

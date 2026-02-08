@@ -72,6 +72,16 @@ Allow local build fallback (last resort):
 WATERMARK_MCP_ALLOW_BUILD=1 ./run-mcp.sh
 ```
 
+Control Python bootstrap behavior (NPX launcher):
+
+```bash
+# disable auto pip install
+WATERMARK_MCP_AUTO_INSTALL_PYTHON=0 npx -y github:jiaqiwang969/watermark-removal-mcp
+
+# use specific python executable
+WATERMARK_PYTHON_BIN=/opt/homebrew/bin/python3 npx -y github:jiaqiwang969/watermark-removal-mcp
+```
+
 ## Codex CLI integration
 
 Use `npx` (cross-platform, no local `.sh` path):
