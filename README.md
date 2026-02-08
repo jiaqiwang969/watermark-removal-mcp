@@ -24,9 +24,8 @@ Watermark removal algorithm (OpenCV):
 3. Dilate mask to connect text fragments
 4. Inpaint with Telea algorithm
 
-## Prerequisites
+## Runtime requirements
 
-- Rust toolchain (`cargo`)
 - Python 3.10+
 - Poppler (`pdf2image` backend)
   - macOS: `brew install poppler`
@@ -38,40 +37,85 @@ Install Python dependencies:
 pip install -r scripts/requirements.txt
 ```
 
-## Run locally
+## Quick start (no Rust compile)
 
-Build and run:
+Clone:
 
 ```bash
-cargo build --release
-WATERMARK_SCRIPTS_DIR="$(pwd)/scripts" ./target/release/watermark-remover-mcp-server
+git clone git@github.com:jiaqiwang969/watermark-removal-mcp.git
+cd watermark-removal-mcp
 ```
 
-Or use the helper script (builds automatically if needed):
+Run MCP on macOS/Linux:
 
 ```bash
 ./run-mcp.sh
 ```
 
-Optional auto-update before start:
+Run MCP on Windows:
+
+```powershell
+.\run-mcp.ps1
+```
+
+`run-mcp.sh` / `run-mcp.ps1` behavior:
+
+- download prebuilt binary from GitHub Releases (latest by default)
+- avoid local Rust compilation by default
+- fallback to local binary if already present
+- optional source build only when `WATERMARK_MCP_ALLOW_BUILD=1`
+
+## Optional settings
+
+Auto-update git repo before start:
 
 ```bash
 WATERMARK_MCP_AUTO_UPDATE=1 ./run-mcp.sh
 ```
 
+Pin a specific release:
+
+```bash
+WATERMARK_MCP_VERSION=v0.1.0 ./run-mcp.sh
+```
+
+Allow local build fallback (last resort):
+
+```bash
+WATERMARK_MCP_ALLOW_BUILD=1 ./run-mcp.sh
+```
+
 ## Codex CLI integration
 
-After cloning this repo:
+macOS/Linux:
 
 ```bash
 codex mcp add watermark-remover -- /absolute/path/to/watermark-removal-mcp/run-mcp.sh
 ```
 
-This keeps your config simple and supports pulling latest code:
+Windows:
+
+```powershell
+codex mcp add watermark-remover -- powershell -NoProfile -ExecutionPolicy Bypass -File C:\path\to\watermark-removal-mcp\run-mcp.ps1
+```
+
+Keep up to date:
 
 ```bash
 git -C /absolute/path/to/watermark-removal-mcp pull
 ```
+
+## Release automation
+
+This repo includes a release workflow:
+
+- file: `.github/workflows/release.yml`
+- trigger: push tags like `v0.1.0`
+- output assets:
+  - `watermark-remover-mcp-x86_64-unknown-linux-gnu.tar.gz`
+  - `watermark-remover-mcp-x86_64-apple-darwin.tar.gz`
+  - `watermark-remover-mcp-aarch64-apple-darwin.tar.gz`
+  - `watermark-remover-mcp-x86_64-pc-windows-msvc.zip`
 
 ## Tools
 
